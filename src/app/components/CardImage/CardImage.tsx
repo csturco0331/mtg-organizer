@@ -3,11 +3,7 @@ import { useState } from 'react'
 import styles from './CardImage.module.css'
 import * as Scry from 'scryfall-sdk'
 
-interface CardImageProps {
-    card: Scry.Card
-}
-
-const CardImage = ({card}: CardImageProps) => {
+const CardImage = ({card}: {card: Scry.Card}) => {
 
     const [firstSelected, setFirstSelected] = useState(true)
 

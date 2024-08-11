@@ -13,3 +13,8 @@ body {
   padding: 0;
   height: 100%;
 }
+
+main {
+  width: 90%;
+  margin: 2.5rem auto;
+}

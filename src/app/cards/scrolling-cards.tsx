@@ -3,17 +3,13 @@ import { useEffect, useState } from 'react'
 import { useInView } from 'react-intersection-observer'
 import * as Scry from 'scryfall-sdk'
 import { fetchCards } from '@/app/shared/actions'
-import styles from '@/app/cards/cards.module.css'
-import CardImage from '@/app/components/CardImage/CardImage'
-import { useRouter } from 'next/navigation'
-import Link from 'next/link'
+import CardMap from '../components/CardMap/CardMap'
 
 export default function ScrollingCards({search = 'c:'}: {search: string}) {
 
     const [cards, setCards] = useState([] as Scry.Card[])
     const [page, setPage] = useState(1)
     const [ref, inView] = useInView()
-    const router = useRouter()
 
     console.log(`Search: ${search}`)
     async function loadMoreCards() {
@@ -50,12 +46,7 @@ export default function ScrollingCards({search = 'c:'}: {search: string}) {
 
     return (
         <>
-            {cards.map((card: Scry.Card) => (
-                <div className={styles.gridSquare}>
-                    <Link className={styles.link} href={`/cards/${card.id}`}>{card.name}</Link>
-                    <CardImage card={card} />
-                </div>
-            ))}
+            <CardMap cards={cards} urlPath="/cards/variants/" searchByName={true}/>
             {/* loading spinner */}
             {(cards.length)
                 ?

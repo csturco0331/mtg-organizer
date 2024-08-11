@@ -1,0 +1,14 @@
+.main {
+    display: flex;
+    column-gap: 65px;
+    margin: 0 5%;
+}
+
+.details {
+    width: 60vw;
+    word-break: break-all;
+}
+
+.key {
+    width: 100%;
+}

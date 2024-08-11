@@ -1,0 +1,18 @@
+.main {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-around;
+    align-items: center;
+    gap: 2rem;
+}
+
+.gridSquare {
+    text-align: center;
+}
+
+.link {
+    color: white;
+    font-size: x-large;
+    text-decoration: none;
+    margin: 0;
+}

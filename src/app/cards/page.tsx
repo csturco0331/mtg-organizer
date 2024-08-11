@@ -16,7 +16,7 @@ export default function Cards({ searchParams }: { searchParams: { [key: string]:
     // }
 
     return (
-        <div className={styles.wrapper}>
+        <>
             <div className={styles.main}>
                 <h1>Cards</h1>
                 <CardSearch/>
@@ -33,9 +33,7 @@ export default function Cards({ searchParams }: { searchParams: { [key: string]:
                     <Link className={styles.pagingButton} href={{pathname: '/cards', query: {...(search ? {search} : {}), page: page + 1}}}>Next</Link>
                 </div> */}
             </div>
-            <div className={styles.main}>
-                <ScrollingCards search={search}/>
-            </div>
-        </div>
+            <ScrollingCards search={search}/>
+        </>
     );
 }
