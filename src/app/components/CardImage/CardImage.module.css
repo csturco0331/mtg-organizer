@@ -1,0 +1,18 @@
+.imgContainer {
+    display: grid;
+    grid-template-columns: 1fr;
+}
+
+.img {
+    border-radius: 22px;
+    grid-column-start: 1;
+    grid-row-start: 1
+}
+
+.second {
+    translate: 10%;
+}
+
+.top {
+    z-index: 1; 
+}

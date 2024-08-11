@@ -1,14 +1,10 @@
 'use client'
 // import Link from "next/link"
 import { useState } from "react"
-import styles from "./cards.module.css"
-import ScrollingCards from "./scrolling-cards"
-import AppFilter from "../components/AppFilter/AppFilter"
-import CardSearch from "./card-search"
-
-//https://scryfall.com/docs/api/cards/search
-//https://scryfall.com/docs/syntax
-//https://github.com/ChiriVulpes/scryfall-sdk/blob/main/DOCUMENTATION.md#cardssearch-query-string-options-searchoptions--number-magicemittercard-
+import styles from "@/app/cards/cards.module.css"
+import ScrollingCards from "@/app/cards/scrolling-cards"
+import AppFilter from "@/app/components/AppFilter/AppFilter"
+import CardSearch from "@/app/cards/card-search"
 
 export default function Cards({ searchParams }: { searchParams: { [key: string]: string | string[] | undefined } }) {
     // const page = typeof searchParams.page === 'string' ? Number(searchParams.page) : 1

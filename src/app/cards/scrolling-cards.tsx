@@ -2,14 +2,18 @@
 import { useEffect, useState } from 'react'
 import { useInView } from 'react-intersection-observer'
 import * as Scry from 'scryfall-sdk'
-import { fetchCards } from '../shared/actions'
-import styles from './cards.module.css'
+import { fetchCards } from '@/app/shared/actions'
+import styles from '@/app/cards/cards.module.css'
+import CardImage from '@/app/components/CardImage/CardImage'
+import { useRouter } from 'next/navigation'
+import Link from 'next/link'
 
 export default function ScrollingCards({search = 'c:'}: {search: string}) {
 
     const [cards, setCards] = useState([] as Scry.Card[])
     const [page, setPage] = useState(1)
     const [ref, inView] = useInView()
+    const router = useRouter()
 
     console.log(`Search: ${search}`)
     async function loadMoreCards() {
@@ -47,18 +51,9 @@ export default function ScrollingCards({search = 'c:'}: {search: string}) {
     return (
         <>
             {cards.map((card: Scry.Card) => (
-                <div key={card.id}>
-                    {
-                        (card.image_uris)
-                        ? <img className={styles.img} src={card.image_uris.normal}></img>
-                        : (card.card_faces)
-                            ?
-                                <div>
-                                    <img className={styles.img} src={card.card_faces[0].image_uris?.normal}></img>
-                                    <img className={styles.img} src={card.card_faces[1].image_uris?.normal}></img>
-                                </div>
-                            : JSON.stringify(card)
-                    }
+                <div className={styles.gridSquare}>
+                    <Link className={styles.link} href={`/cards/${card.id}`}>{card.name}</Link>
+                    <CardImage card={card} />
                 </div>
             ))}
             {/* loading spinner */}

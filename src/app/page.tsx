@@ -1,4 +1,4 @@
-import styles from "./page.module.css"
+import styles from "@/app/page.module.css"
 import * as Scry from 'scryfall-sdk'
 
 //https://scryfall.com/docs/api/cards/search

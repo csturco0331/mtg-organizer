@@ -1,7 +1,7 @@
 'use client'
 import { usePathname, useRouter, useSearchParams } from "next/navigation"
 import { useDebouncedCallback } from "use-debounce"
-import styles from './cards.module.css'
+import styles from '@/app/cards/cards.module.css'
 
 export default function CardSearch() {
     const searchParams = useSearchParams()

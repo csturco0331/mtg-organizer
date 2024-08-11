@@ -1,7 +1,7 @@
 'use client'
 import * as Scry from 'scryfall-sdk'
 import React, { useEffect, useState } from 'react'
-import styles from './AppFilter.module.css'
+import styles from '@/app/components/AppFilter/AppFilter.module.css'
 
 interface Types {
     type: string
