@@ -6,7 +6,7 @@ import User from "@/app/lib/modals/user"
 
 export const GET = async (request: Request, context: {params: any}) => {
     const cardId = context.params.card
-    if (!cardId || !Types.ObjectId.isValid(cardId)) {
+    if (!cardId) {
         return new NextResponse(JSON.stringify({error: 'Invalid card'}), {status: 400})
     }
     try {
@@ -19,9 +19,8 @@ export const GET = async (request: Request, context: {params: any}) => {
 
         await connect()
 
-
         const card = await Card.findOne({
-            _id: cardId,
+            scryfallId: cardId,
             user: userId
         })
 

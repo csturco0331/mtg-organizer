@@ -2,7 +2,7 @@
 import { useEffect, useState } from 'react'
 import { useInView } from 'react-intersection-observer'
 import * as Scry from 'scryfall-sdk'
-import { fetchCards } from '@/app/shared/actions'
+import { fetchScryfallCards } from '@/app/actions/scryfall'
 import CardMap from '../components/CardMap/CardMap'
 
 export default function ScrollingCards({search = 'c:'}: {search: string}) {
@@ -15,7 +15,7 @@ export default function ScrollingCards({search = 'c:'}: {search: string}) {
     async function loadMoreCards() {
         const next = page + 1
         console.log(`Load: ${search}`)
-        const cards = await fetchCards({search, page: next})
+        const cards = await fetchScryfallCards({search, page: next})
         if (cards?.length) {
             setPage(next)
             setCards((prev) => prev ? prev.concat(cards) : cards)
@@ -24,7 +24,7 @@ export default function ScrollingCards({search = 'c:'}: {search: string}) {
 
     async function loadNewCards() {
         console.log(`Loading new search: ${search}`)
-        const cards = await fetchCards({search})
+        const cards = await fetchScryfallCards({search})
         if (cards?.length) {
             setPage(1)
             setCards(cards)

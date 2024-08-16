@@ -5,6 +5,7 @@ import { Types } from "mongoose"
 
 export const GET = async () => {
     try {
+ 
         await connect()
         const users = await User.find()
         return new NextResponse(JSON.stringify(users), {status: 200})
@@ -16,7 +17,27 @@ export const GET = async () => {
     }
 }
 
+//Get user based on credentials
 export const POST = async (req: Request) => {
+    try {
+        const body = await req.json()
+        const {email} = body
+        if (!email) {
+            return new NextResponse(JSON.stringify({error: 'Missing email'}), {status: 400})
+        }
+        await connect()
+        const users = await User.findOne({email})
+        return new NextResponse(JSON.stringify(users), {status: 200})
+    } catch (error) {
+        console.error(error)
+        return new NextResponse("Failed to connect to the database.", {
+            status: 500,
+        })
+    }
+}
+
+//Create new user
+export const PUT = async (req: Request) => {
     try {
         const body = await req.json()
         await connect()

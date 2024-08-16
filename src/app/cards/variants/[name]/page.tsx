@@ -1,4 +1,4 @@
-import { fetchCardVariants } from '@/app/shared/actions'
+import { fetchScryfallCardVariants } from '@/app/actions/scryfall'
 import CardMap from '@/app/components/CardMap/CardMap'
 
 export default function Variants({params}: {params: {name: string}}) {
@@ -10,7 +10,7 @@ export default function Variants({params}: {params: {name: string}}) {
     console.log(`Search: ${search}`)
     async function getVariants() {
         try {
-            let cards = await fetchCardVariants(search)
+            let cards = await fetchScryfallCardVariants(search)
             if (cards.length === 1) {
                 
             }

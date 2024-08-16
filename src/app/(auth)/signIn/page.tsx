@@ -1,5 +1,5 @@
 import styles from "@/app/page.module.css"
-import { signIn } from "./auth";
+import { signIn } from "@/app/auth";
 
 //https://scryfall.com/docs/api/cards/search
 //https://scryfall.com/docs/syntax

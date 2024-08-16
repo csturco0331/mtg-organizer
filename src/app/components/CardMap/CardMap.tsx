@@ -10,7 +10,7 @@ const CardMap = ({cards, urlPath, searchByName = false}: {cards: Scry.Card[], ur
             {cards.map((card: Scry.Card) => (
                 <div className={styles.gridSquare} key={card.id}>
                     {/* Split the name by // for dual faced cards */}
-                    <Link className={styles.link} href={`${urlPath}${searchByName ? card.name.split('//')[0] : card.id}`}>{card.name}</Link>
+                    <Link className={styles.link} href={`${urlPath}${searchByName ? card.name.split('//')[0] : card.id}`}>{card.name.split('//')[0]}</Link>
                     <CardImage card={card} />
                 </div>
             ))}
