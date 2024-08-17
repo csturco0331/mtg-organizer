@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server"
-import connect from '@/app/lib/db'
+import connect from '@/app/lib/dbConnection'
 import { Types } from "mongoose"
 import User from "@/app/lib/modals/user"
 import Deck from "@/app/lib/modals/deck"

@@ -1,5 +1,9 @@
 import mongoose from 'mongoose'
 
+if (!process.env.MONGODB_URI) {
+    throw new Error('Missing MONGODB_URI environment variable')
+}
+
 const MONGODB_URI = process.env.MONGODB_URI
 
 const connect = async () => {

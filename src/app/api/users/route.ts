@@ -1,8 +1,9 @@
 import { NextResponse } from "next/server"
-import connect from '@/app/lib/db'
+import connect from '@/app/lib/dbConnection'
 import User from '@/app/lib/modals/user'
 import { Types } from "mongoose"
-
+import bcrypt from "bcrypt"
+//todo: remove
 export const GET = async () => {
     try {
  
@@ -21,13 +22,24 @@ export const GET = async () => {
 export const POST = async (req: Request) => {
     try {
         const body = await req.json()
-        const {email} = body
-        if (!email) {
-            return new NextResponse(JSON.stringify({error: 'Missing email'}), {status: 400})
+        const {email, password} = body
+        if (!email || !password) {
+            return new NextResponse(JSON.stringify({error: 'Missing parameter'}), {status: 400})
         }
         await connect()
-        const users = await User.findOne({email})
-        return new NextResponse(JSON.stringify(users), {status: 200})
+        const user = await User.findOne({email})
+        if (!user) {
+            return new NextResponse(JSON.stringify({error: "Failed to get user"}), {status: 400})
+        }
+        
+        let correctAuth = await bcrypt.compare(password, user.password)
+        if (!correctAuth) {
+            console.log('Invalid password')
+            return new NextResponse(JSON.stringify({error: 'Invalid password'}), {status: 400})
+        }
+
+        const {username, _id} = user
+        return new NextResponse(JSON.stringify({username, email, _id}), {status: 200})
     } catch (error) {
         console.error(error)
         return new NextResponse("Failed to connect to the database.", {
@@ -39,11 +51,14 @@ export const POST = async (req: Request) => {
 //Create new user
 export const PUT = async (req: Request) => {
     try {
-        const body = await req.json()
+        const {username, email, password} = await req.json()  
+        //hash password
+        const pwHash = await bcrypt.hash(password, 10)
         await connect()
-        const newUser = new User(body)
+        const newUser = new User({username, email, password: pwHash})
         await newUser.save()
-        return new NextResponse(JSON.stringify({message: 'User is created', user: newUser}), {status: 201})
+        const {_id} = newUser
+        return new NextResponse(JSON.stringify({message: 'User is created', user: {_id, username, email}}), {status: 201})
     } catch (error: any) {
         return new NextResponse(JSON.stringify({error: error.message}), {status: 500})
     }
@@ -63,7 +78,9 @@ export const PATCH = async (req: Request) => {
         if (!updatedUser) {
             return new NextResponse(JSON.stringify({message: 'User not found'}), {status: 400})
         }
-        return new NextResponse(JSON.stringify({message: 'User is updated', user: updatedUser}), {status: 200})
+        const {email} = updatedUser
+
+        return new NextResponse(JSON.stringify({message: 'User is updated', user: {_id, username, email}}), {status: 200})
     } catch (error: any) {
         return new NextResponse(JSON.stringify({error: error.message}), {status: 500})
     }

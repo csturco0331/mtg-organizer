@@ -1,5 +1,8 @@
 'use client'
+import styles from '../auth.module.css'
 import { signUp } from "@/app/actions/auth";
+import AppButton from "@/app/components/AppButton/AppButton";
+import Link from "next/link";
 import { useFormState } from "react-dom";
 
 //https://scryfall.com/docs/api/cards/search
@@ -11,35 +14,25 @@ export default function SignUp() {
  
   return (
     <form action={action}>
-      <div>
-        <label htmlFor="username">Username</label>
-        <input id="username" name="username" placeholder="Username" />
-      </div>
-      {state?.errors?.username && <p>{state.errors.username}</p>}
+      <input id="username" name="username" placeholder="Username" />
+      {state?.errors?.username && <p className={styles.err}>{state.errors.username}</p>}
  
-      <div>
-        <label htmlFor="email">Email</label>
-        <input id="email" name="email" placeholder="Email" />
-      </div>
-      {state?.errors?.email && <p>{state.errors.email}</p>}
+      <input id="email" name="email" placeholder="Email" />
+      {state?.errors?.email && <p className={styles.err}>{state.errors.email}</p>}
  
-      <div>
-        <label htmlFor="password">Password</label>
-        <input id="password" name="password" type="password" />
-      </div>
+      <input id="password" name="password" type="password" placeholder="Password" />
       {state?.errors?.password && (
         <div>
-          <p>Password must:</p>
+          <p className={styles.err}>Password must:</p>
           <ul>
             {state.errors.password.map((error) => (
-              <li key={error}>- {error}</li>
+              <li key={error} className={styles.err}>{error}</li>
             ))}
           </ul>
         </div>
       )}
-      <button aria-disabled={pending} type="submit">
-        {pending ? 'Submitting...' : 'Sign up'}
-      </button>
+      <AppButton aria-disabled={pending} text={pending ? 'Submitting...' : 'Sign up'}/>
+      <Link className={styles.link} href="/signIn">Sign In</Link>
     </form>
   )
 }

@@ -1,10 +1,10 @@
 'use server'
 
 import { redirect } from "next/navigation"
-import { FormState, SignupFormSchema } from "../lib/definitions"
-import { createSession } from "../lib/session"
+import { FormState, signInSchema, SignupFormSchema } from "../lib/definitions"
 import { fetchUserFromDatabase, createUserInDatabase } from "./mongo"
-import bcrypt from "bcrypt"
+import { User } from "next-auth"
+import bcrypt from 'bcrypt'
 
 export const signUp = async (state: FormState, formData: FormData) => {
     try {
@@ -24,10 +24,9 @@ export const signUp = async (state: FormState, formData: FormData) => {
 
         const { username, email, password } = validatedFields.data
         //see if user email already exists
-        let res = await fetchUserFromDatabase(email)
+        let res = await fetchUserFromDatabase(email, password)
         let user = await res.json()
-        console.log(JSON.stringify(user))
-        if (user && user.id) {
+        if (user.error !== "Failed to get user") {
             console.log('User already exists')
             return {
                 errors: {
@@ -35,41 +34,51 @@ export const signUp = async (state: FormState, formData: FormData) => {
                 },
             }
         }
-        //hash password
-        const pwHash = await bcrypt.hash(password, 10)
         //create user in database
-        res = await createUserInDatabase({ email, password: pwHash, username })
+        res = await createUserInDatabase({ email, password: password, username })
         user = await res.json()
-        //create user session
-        await createSession(user.id)
-
-        redirect('/cards')
+        console.log('testing')
     } catch (err) {
-        return
+        return {
+            errors: {
+                email: ['An error occurred']
+            }
+        }
     }
+    redirect('/signIn')
 }
 
 export const authorize = async (credentials: Partial<Record<"email" | "password", unknown>>) => {
-    try {
-        let user = null
-        // logic to verify if the user exists
-        let res = await fetchUserFromDatabase(credentials.email as string)
-        user = await res.json()
+    console.log('at least authorize is being called right?')
+    let user = null
+    //verify input parameters
+    const validatedFields = signInSchema.safeParse({
+        email: credentials.email,
+        password: credentials.password,
+    })
 
-        if (!user || !user.id) {
-            // No user found, so this is their first attempt to login
-            // meaning this is also the place you could do registration
-            throw new Error("User not found.")
-        }
-
-        let correctAuth = await bcrypt.compare(credentials.password as string, user.password)
-        if (!correctAuth) {
-            throw new Error("Invalid credentials.")
-        }
-
-        // return user object with their profile data
-        return user
-    } catch (err) {
-        return null
+    // If any form fields are invalid, return early
+    if (!validatedFields.success) {
+        console.log('Invalid data')
+        throw new Error('Invalid data')
     }
+
+    const { email, password } = validatedFields.data
+
+    // logic to verify if the user exists
+    let res = await fetchUserFromDatabase(email, password)
+    user = await res.json()
+    if (!user || !user._id) {
+        console.log('User not found')
+        // No user found, so this is their first attempt to login
+        // meaning this is also the place you could do registration
+        throw new Error('Bad Credentials')
+    }
+    // return user object with their profile data
+    console.log('User was fucking authenticated')
+    return {
+        _id: user._id as string,
+        email: user.email as string,
+        username: user.username as string,
+    } as User
 }

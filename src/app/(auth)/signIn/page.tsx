@@ -1,28 +1,24 @@
-import styles from "@/app/page.module.css"
-import { signIn } from "@/app/auth";
+'use client'
+import styles from "../auth.module.css"
+import { login } from "./actions";
+import AppButton from "@/app/components/AppButton/AppButton";
+import Link from "next/link";
+import { useFormState } from "react-dom";
 
 //https://scryfall.com/docs/api/cards/search
 //https://scryfall.com/docs/syntax
 //https://github.com/ChiriVulpes/scryfall-sdk/blob/main/DOCUMENTATION.md#cardssearch-query-string-options-searchoptions--number-magicemittercard-
 
-export default async function Home() {
+export default function Home() {
+  const [state, action, pending] = useFormState(login, undefined);
 
   return (
-    <form
-      action={async (formData) => {
-        "use server"
-        await signIn("credentials", formData)
-      }}
-    >
-      <label>
-        Email
-        <input name="email" type="email" />
-      </label>
-      <label>
-        Password
-        <input name="password" type="password" />
-      </label>
-      <button>Sign In</button>
+    <form className={styles.form} action={action}>
+      {state?.message && <p className={styles.err}>{state.message}</p>}
+      <input name="email" type="email" placeholder="Email"/>
+      <input name="password" type="password" placeholder="Password"/>
+      <AppButton text="Sign in"/>
+      <Link className={styles.link} href="/signUp">New User</Link>
     </form>
   )
 }
