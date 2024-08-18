@@ -11,8 +11,54 @@ export async function fetchCardFromDatabase(cardId: string) {
             'Content-Type': 'application/json',
         },
     })
-    console.log(JSON.stringify(data))
-    return JSON.parse(JSON.stringify(data))
+    console.log('Card Fetched')
+    return await data.json()
+}
+
+export async function createCardInDatabase({scryfallId, quantity, decks, cardId}: {scryfallId: string | undefined, quantity: number, decks: string[] | undefined, cardId: string | undefined}) {
+    let session = await auth()
+    if (!session || !session.user) return
+    let data = await fetch(`${process.env.URL}/api/cards`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({scryfallId, quantity, decks, user: session.user._id}),
+    })
+    let content = await data.json()
+    console.log(content.error || 'Card Created')
+    return content
+}
+
+export async function updateCardInDatabase({scryfallId, quantity, decks, cardId}: {scryfallId: string | undefined, quantity: number, decks: string[] | undefined, cardId: string | undefined}) {
+    let session = await auth()
+    if (!session || !session.user) return
+    let data = await fetch(`${process.env.URL}/api/cards/${cardId}?userId=${session.user._id}`, {
+        method: 'PATCH',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({scryfallId, quantity, decks}),
+    })
+    let content = await data.json()
+    console.log(content.error || 'Card Updated')
+    return content
+}
+
+//setting the param object the exact same for all the card methods so that they can be interchanged in use
+export async function deleteCardFromDatabase({scryfallId, quantity, decks, cardId}: {scryfallId: string | undefined, quantity: number, decks: string[] | undefined, cardId: string | undefined}) {
+    let session = await auth()
+    if (!session || !session.user) return
+    let data = await fetch(`${process.env.URL}/api/cards/${cardId}?userId=${session.user._id}`, {
+        method: 'DELETE',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+    })
+    let content = await data.json()
+    console.log(content.error || 'Card Deleted')
+    console.log(content)
+    return content
 }
 
 export async function fetchUserFromDatabase(email: string, password: string) {

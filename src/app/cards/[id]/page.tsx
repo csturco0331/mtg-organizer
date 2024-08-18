@@ -1,23 +1,20 @@
 'use client'
 import { fetchScryfallCardById } from "@/app/actions/scryfall"
-import { fetchCardFromDatabase } from "@/app/actions/mongo"
 import styles from '@/app/cards/[id]/card.module.css'
 import CardImage from "@/app/components/CardImage/CardImage"
-import AppButton from "@/app/components/AppButton/AppButton"
 import { useEffect, useState } from "react"
 import * as Scry from 'scryfall-sdk'
+import InventoryUpdater from "@/app/components/InventoryUpdater/InventoryUpdater"
 
 export default function Card({params}: {params: {id: string}}) {
 
     const [card, setCard] = useState<Scry.Card>()
-    const [userCard, setUserCard] = useState()
     const [priceHTML, setPriceHTML] = useState<React.JSX.Element[] | undefined>()
 
     useEffect(() => {
         const fetchData = async () => {
-            setCard(await fetchScryfallCardById(params.id))
-            setUserCard(await fetchScryfallCardById(params.id))
-            console.log(JSON.stringify(userCard))
+            let scryCard = fetchScryfallCardById(params.id)
+            setCard(await scryCard)
         }
 
         fetchData()
@@ -27,7 +24,6 @@ export default function Card({params}: {params: {id: string}}) {
     useEffect(() => {
         if (!card) return
         let htmlArray = Object.keys(card.prices).map(key => {
-
             let price = card.prices[key as keyof Scry.Prices]
             if (!price) return null
             return (<li key={key}>{key}: {price}</li>)
@@ -36,10 +32,6 @@ export default function Card({params}: {params: {id: string}}) {
             setPriceHTML(htmlArray)
     }, [card])
 
-    function doThis() {
-        console.log('Add to collection clicked')
-    }
-
     return (
         <>
             {(card) 
@@ -47,6 +39,20 @@ export default function Card({params}: {params: {id: string}}) {
             <div className={styles.main}>
                 <CardImage card={card} />
                 <div className={styles.details}>
+                    {/* <div>
+                        {(userCard?.decks?.length) 
+                            ?
+                        <>
+                            <p><b>Decks:</b></p>
+                            <ul>
+                                {userCard?.decks.map(deck => {
+                                    return <li key={deck}>{deck}</li>
+                                })}
+                            </ul>
+                        </>
+                            : <></>
+                        }
+                    </div> */}
                     {(priceHTML) 
                         ?
                     <div className={styles.prices}>
@@ -61,11 +67,11 @@ export default function Card({params}: {params: {id: string}}) {
                         ? <a className={styles.anchor} href={card.purchase_uris.tcgplayer || ''}>TCGPlayer</a>
                         : null
                     }
-                    <AppButton text="Add To Collection" buttonAction={doThis}/>
+                    <InventoryUpdater scryfallId={params.id}></InventoryUpdater>
                 </div>
             </div>
                 :
-            <div>
+            <div className={styles.main}>
                 Loading...
             </div>
             }

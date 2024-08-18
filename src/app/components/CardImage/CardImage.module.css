@@ -1,18 +1,41 @@
 .imgContainer {
+    perspective: 1000px;
+}
+
+.innerContainer {
     display: grid;
     grid-template-columns: 1fr;
+    transition: transform 0.8s;
+    transform-style: preserve-3d;
+}
+
+.flip {
+    transform: rotateY(180deg);
+}
+
+.flipButton {
+    position: absolute;
+    top: 10%;
+    left: 75%;
+    z-index: 1;
+    background-color: #ffffff50;
+    border-radius: 50%;
 }
 
 .img {
     border-radius: 22px;
     grid-column-start: 1;
-    grid-row-start: 1
+    grid-row-start: 1;
+    width: 300px;
+    backface-visibility: hidden;
 }
 
-.second {
-    translate: 10%;
+.back {
+    transform: rotateY(180deg);
 }
 
-.top {
-    z-index: 1; 
+@media screen and (max-width: 767px) {
+    .img {
+        width: 200px;
+    }
 }

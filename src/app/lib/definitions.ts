@@ -1,5 +1,5 @@
 import { z } from 'zod'
- 
+
 export const SignupFormSchema = z.object({
   username: z
     .string()
@@ -29,14 +29,22 @@ export const signInSchema = z.object({
     })
     .trim()
 })
- 
+
 export type FormState = Response
   | {
-      errors?: {
-        username?: string[]
-        email?: string[]
-        password?: string[]
-      }
-      message?: string
+    errors?: {
+      username?: string[]
+      email?: string[]
+      password?: string[]
     }
+    message?: string
+  }
   | undefined
+
+export type Card = {
+  scryfallId: 'string',
+  quantity: number,
+  decks: ['string'],
+  user: 'string',
+  _id: 'string'
+}

@@ -40,22 +40,26 @@ export const GET = async (request: Request, context: {params: any}) => {
 export const PATCH = async (request: Request, context: {params: any}) => {
     const cardId = context.params.card
     if (!cardId || !Types.ObjectId.isValid(cardId)) {
-        return new NextResponse(JSON.stringify({error: 'Invalid card'}), {status: 400})
+        console.log("Invalid card id")
+        return new NextResponse(JSON.stringify({error: 'Invalid card id'}), {status: 400})
     }
     try {
         const {searchParams} = new URL(request.url)
         const userId = searchParams.get("userId")
-        const {scryfallId, colors, quantity, decks} = await request.json()
+        const {scryfallId, quantity, decks} = await request.json()
 
         if (!userId ||!Types.ObjectId.isValid(userId)) {
-            return new NextResponse(JSON.stringify({error: 'Invalid user'}), {status: 400})
+            console.log('Invalid user id')
+            return new NextResponse(JSON.stringify({error: 'Invalid user id'}), {status: 400})
         }
 
         if (!scryfallId) {
+            console.log('Missing scryfall id')
             return new NextResponse(JSON.stringify({error: 'Missing scryfall Id'}), {status: 400})
         }
 
         if (!quantity) {
+            console.log('Missing quantity')
             return new NextResponse(JSON.stringify({error: 'Missing quantity'}), {status: 400})
         }
 
@@ -63,12 +67,13 @@ export const PATCH = async (request: Request, context: {params: any}) => {
 
         const user = await User.findById(userId)
         if (!user) {
+            console.log('Invalid user')
             return new NextResponse(JSON.stringify({error: 'User not found'}), {status: 404})
         }
 
         const card = await Card.findByIdAndUpdate(
             cardId,
-            {user: userId, scryfallId, colors, quantity, decks: decks.map((deck: 'string') => new Types.ObjectId(deck))},
+            {user: userId, scryfallId, quantity, decks: decks.map((deck: 'string') => new Types.ObjectId(deck))},
             {new: true}
         )
         return new NextResponse(JSON.stringify({card}), {status: 200})

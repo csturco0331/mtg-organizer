@@ -1,11 +1,10 @@
 .main {
     display: flex;
     column-gap: 65px;
-    margin: 0 5%;
+    justify-content: center;
 }
 
 .details {
-    width: 60vw;
     word-break: break-all;
 }
 

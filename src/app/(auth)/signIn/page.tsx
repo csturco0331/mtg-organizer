@@ -13,7 +13,7 @@ export default function Home() {
   const [state, action, pending] = useFormState(login, undefined);
 
   return (
-    <form className={styles.form} action={action}>
+    <form action={action}>
       {state?.message && <p className={styles.err}>{state.message}</p>}
       <input name="email" type="email" placeholder="Email"/>
       <input name="password" type="password" placeholder="Password"/>

@@ -1,0 +1,37 @@
+.buttonCluster {
+    display: flex;
+    margin: 10px 0;
+    justify-content: center;
+}
+
+.label {
+    text-align: center;
+    line-height: 25px;
+    height: 25px;
+    margin: auto 5px auto 0;
+}
+
+.quantityChange {
+    width: 50px;
+    text-align: center;
+    line-height: 25px;
+    height: 25px;
+    margin: auto 0;
+}
+
+.quantityButton {
+    height: 27px;
+    margin: auto 0;
+}
+
+.gap {
+    margin-right: 10px;
+}
+
+.clean {
+    background: green;
+}
+
+.dirty {
+    background: red;
+}
