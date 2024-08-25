@@ -23,7 +23,6 @@ export default function ScrollingCards({search = 'c:'}: {search: string}) {
     }
 
     async function loadNewCards() {
-        console.log(`Loading new search: ${search}`)
         const cards = await fetchScryfallCards({search})
         if (cards?.length) {
             setPage(1)
@@ -35,6 +34,7 @@ export default function ScrollingCards({search = 'c:'}: {search: string}) {
     }
 
     useEffect(() => {
+        if (!cards.length) return
         if (inView) loadMoreCards()
         
     }, [inView])
@@ -46,7 +46,7 @@ export default function ScrollingCards({search = 'c:'}: {search: string}) {
 
     return (
         <>
-            <CardMap cards={cards} urlPath="/cards/variants/" searchByName={true}/>
+            <CardMap cards={cards} urlPath="/cards/variants/" getUserInventory={true}/>
             {/* loading spinner */}
             {(cards.length)
                 ?

@@ -1,9 +1,8 @@
-'use server'
-
-import { auth } from "@/app/auth"
+import { translateCard, UserCard } from "../lib/modals/card"
+import {Card as ScryCard} from 'scryfall-sdk'
 
 export async function fetchCardFromDatabase(cardId: string) {
-    let session = await auth()
+    let session = {user: {_id: ''}} //TODO: Update with proper session id
     if (!session || !session.user) return
     let data = await fetch(`${process.env.URL}/api/cards/${cardId}?userId=${session.user._id}`, {
         method: 'GET',
@@ -15,41 +14,42 @@ export async function fetchCardFromDatabase(cardId: string) {
     return await data.json()
 }
 
-export async function createCardInDatabase({scryfallId, quantity, decks, cardId}: {scryfallId: string | undefined, quantity: number, decks: string[] | undefined, cardId: string | undefined}) {
-    let session = await auth()
+export async function createCardInDatabase(scryCard: ScryCard, quantity: number) {
+    let session = {user: {_id: ''}} //TODO: Update with proper session id
     if (!session || !session.user) return
+    let card = translateCard(scryCard, quantity, session.user._id)
+    console.log('Card Translated')
     let data = await fetch(`${process.env.URL}/api/cards`, {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
         },
-        body: JSON.stringify({scryfallId, quantity, decks, user: session.user._id}),
+        body: JSON.stringify({...card, user: session.user._id}),
     })
     let content = await data.json()
     console.log(content.error || 'Card Created')
     return content
 }
 
-export async function updateCardInDatabase({scryfallId, quantity, decks, cardId}: {scryfallId: string | undefined, quantity: number, decks: string[] | undefined, cardId: string | undefined}) {
-    let session = await auth()
+export async function updateCardInDatabase(card: UserCard) {
+    let session = {user: {_id: ''}} //TODO: Update with proper session id
     if (!session || !session.user) return
-    let data = await fetch(`${process.env.URL}/api/cards/${cardId}?userId=${session.user._id}`, {
+    let data = await fetch(`${process.env.URL}/api/cards/${card._id}?userId=${session.user._id}`, {
         method: 'PATCH',
         headers: {
             'Content-Type': 'application/json',
         },
-        body: JSON.stringify({scryfallId, quantity, decks}),
+        body: JSON.stringify(card),
     })
     let content = await data.json()
     console.log(content.error || 'Card Updated')
     return content
 }
 
-//setting the param object the exact same for all the card methods so that they can be interchanged in use
-export async function deleteCardFromDatabase({scryfallId, quantity, decks, cardId}: {scryfallId: string | undefined, quantity: number, decks: string[] | undefined, cardId: string | undefined}) {
-    let session = await auth()
+export async function deleteCardFromDatabase(_id: string) {
+    let session = {user: {_id: ''}} //TODO: Update with proper session id
     if (!session || !session.user) return
-    let data = await fetch(`${process.env.URL}/api/cards/${cardId}?userId=${session.user._id}`, {
+    let data = await fetch(`${process.env.URL}/api/cards/${_id}?userId=${session.user._id}`, {
         method: 'DELETE',
         headers: {
             'Content-Type': 'application/json',
@@ -57,7 +57,6 @@ export async function deleteCardFromDatabase({scryfallId, quantity, decks, cardI
     })
     let content = await data.json()
     console.log(content.error || 'Card Deleted')
-    console.log(content)
     return content
 }
 

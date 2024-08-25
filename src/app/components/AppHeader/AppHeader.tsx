@@ -5,8 +5,7 @@ const AppHeader = () => {
 
     return (
         <div className={styles.header}>
-            <h1 className={styles.h1}>Turco's MTG Organizer</h1>
-            <p className={styles.p}>Allow myself to properly organize the cards I have and use</p>
+            <h1 className={styles.h1}>MTG Organizer</h1>
         </div>
     )
 }

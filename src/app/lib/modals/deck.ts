@@ -3,8 +3,8 @@ import { Schema, model, models } from "mongoose";
 const DeckSchema = new Schema(
     {
         name: {type: 'String', required: true, unique: true},
-        colors: {type: 'String', required: true},
-        cards: {type: [Schema.Types.ObjectId], required: true, ref: 'Card'},
+        color_identity: {type: Array<"W" | "B" | "R" | "U" | "G">, required: true},
+        cards: {type: Array<CardLink>, required: true, ref: 'Card'},
         commander: {type: Schema.Types.ObjectId, required: true, ref: 'Card'},
         user: {type: Schema.Types.ObjectId, ref: 'User'}
     },
@@ -13,6 +13,9 @@ const DeckSchema = new Schema(
     }
 )
 
-const Deck = models.Deck || model('Deck', DeckSchema)
+export const Deck = models.Deck || model('Deck', DeckSchema)
 
-export default Deck
+export type CardLink = {
+    cardId: string;
+    count: Number;
+}

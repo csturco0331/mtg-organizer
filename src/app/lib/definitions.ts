@@ -36,15 +36,7 @@ export type FormState = Response
       username?: string[]
       email?: string[]
       password?: string[]
+      message?: string
     }
-    message?: string
   }
   | undefined
-
-export type Card = {
-  scryfallId: 'string',
-  quantity: number,
-  decks: ['string'],
-  user: 'string',
-  _id: 'string'
-}

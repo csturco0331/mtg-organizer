@@ -1,5 +1,6 @@
 import { fetchScryfallCardVariants } from '@/app/actions/scryfall'
 import CardMap from '@/app/components/CardMap/CardMap'
+import SearchHeader from '@/app/components/SearchHeader/SearchHeader'
 
 export default function Variants({params}: {params: {name: string}}) {
 
@@ -15,7 +16,10 @@ export default function Variants({params}: {params: {name: string}}) {
                 
             }
             return (
-                <CardMap cards={cards} urlPath="/cards/"/>
+                <>
+                    <SearchHeader title="Variants"/>
+                    <CardMap cards={cards} urlPath="/cards/"/>
+                </>
             )
         } catch (err) {
             return (

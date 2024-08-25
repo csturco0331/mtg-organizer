@@ -1,50 +1,60 @@
 'use client'
 import * as dbManager from '@/app/actions/mongo'
-import AppButton from '../AppButton/AppButton'
 import styles from './InventoryUpdater.module.css'
 import { useEffect, useState } from 'react'
-import {Card as UserCard} from '@/app/lib/definitions'
+import * as Scry from 'scryfall-sdk'
 
-export default function InventoryUpdater({scryfallId}: {scryfallId: string}) {
+type UserCard = {
+    _id: string,
+    name: string,
+    image: (string | undefined)[],
+    type_line: string[],
+    oracle_text: string[],
+    color_identity: Array<'W' | 'B' | 'R' | 'U' | 'G'>,
+    keywords: string[],
+    tcgplayer?: string | undefined | null
+    userCounts: {
+        userId: string;
+        quantity: Number;
+        used: Number;
+    }
+}
+
+export default function InventoryUpdater({card}: {card: Scry.Card}) {
 
     const [quantity, setQuantity] = useState(0)
     const [userCard, setUserCard] = useState<UserCard>()
 
-    useEffect(() => {
-        const fetchData = async () => {
-            let dbCard = await dbManager.fetchCardFromDatabase(scryfallId)
-            if (dbCard.card) {
-                setUserCard(dbCard.card)
-                setQuantity(dbCard.card.quantity)
-            }
-        }
+    // useEffect(() => {
+    //     const fetchData = async () => {
+    //         let dbCard = await dbManager.fetchCardFromDatabase(card.id)
+    //         if (dbCard.card) {
+    //             setUserCard(dbCard.card)
+    //             setQuantity(dbCard.card.quantity)
+    //         }
+    //     }
 
-        fetchData()
-            .catch(console.error)
-    }, [])
+    //     fetchData()
+    //         .catch(console.error)
+    // }, [])
 
     async function updateCollection() {
-        const dataBaseCall = userCard && userCard._id
-            ? quantity
-                ? dbManager.updateCardInDatabase  //card exists, update quantity
-                : dbManager.deleteCardFromDatabase  //if quantity is 0 remove from collection
-            : dbManager.createCardInDatabase  //default - no card yet need to create
-        //const colors = card?.colors?.map(c => `${c}`).reduce((acc, c) => `${acc}${c}`)
+        let data
+        // if (userCard?._id && quantity)
+        //     data = await dbManager.updateCardInDatabase({...userCard, userCounts: {...userCard.userCounts, quantity: quantity}})
+        // else if (userCard?._id)
+        //     data = await dbManager.deleteCardFromDatabase(userCard._id)
+        // else
+            data = await dbManager.createCardInDatabase(card, quantity)
 
-        let data = await dataBaseCall({
-            cardId: userCard?._id,
-            scryfallId: scryfallId,
-            quantity: quantity,
-            decks: userCard?.decks
-        })
-        if (data.card) {
+        if (data?.card) {
             setUserCard(quantity ? data.card : undefined)
         }
     }
 
     function checkIfClean() {
-        if (!userCard?.quantity && quantity === 0) return true
-        if (userCard?.quantity === quantity) return true
+        if (!userCard?.userCounts.quantity && quantity === 0) return true
+        if (userCard?.userCounts.quantity === quantity) return true
         return false
     }
 

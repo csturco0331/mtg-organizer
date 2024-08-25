@@ -1,14 +1,12 @@
-'use server'
-
+'use server' //needed
 import { redirect } from "next/navigation"
 import { FormState, signInSchema, SignupFormSchema } from "../lib/definitions"
 import { fetchUserFromDatabase, createUserInDatabase } from "./mongo"
-import { User } from "next-auth"
-import bcrypt from 'bcrypt'
+import { createSession } from "../lib/session"
 
 export const signUp = async (state: FormState, formData: FormData) => {
     try {
-        //validate form dat
+        //validate form data
         const validatedFields = SignupFormSchema.safeParse({
             username: formData.get('username'),
             email: formData.get('email'),
@@ -37,7 +35,6 @@ export const signUp = async (state: FormState, formData: FormData) => {
         //create user in database
         res = await createUserInDatabase({ email, password: password, username })
         user = await res.json()
-        console.log('testing')
     } catch (err) {
         return {
             errors: {
@@ -48,21 +45,22 @@ export const signUp = async (state: FormState, formData: FormData) => {
     redirect('/signIn')
 }
 
-export const authorize = async (credentials: Partial<Record<"email" | "password", unknown>>) => {
-    console.log('at least authorize is being called right?')
+export const login = async (state: FormState, formData: FormData) => {
     let user = null
     //verify input parameters
     const validatedFields = signInSchema.safeParse({
-        email: credentials.email,
-        password: credentials.password,
+        email: formData.get('email'),
+        password: formData.get('password'),
     })
-
+    
     // If any form fields are invalid, return early
     if (!validatedFields.success) {
         console.log('Invalid data')
-        throw new Error('Invalid data')
+        return {
+            errors: validatedFields.error.flatten().fieldErrors,
+        }
     }
-
+    
     const { email, password } = validatedFields.data
 
     // logic to verify if the user exists
@@ -72,13 +70,17 @@ export const authorize = async (credentials: Partial<Record<"email" | "password"
         console.log('User not found')
         // No user found, so this is their first attempt to login
         // meaning this is also the place you could do registration
-        throw new Error('Bad Credentials')
+        return {
+            message: 'Bad Credentials'
+        }
     }
-    // return user object with their profile data
-    console.log('User was fucking authenticated')
-    return {
-        _id: user._id as string,
-        email: user.email as string,
-        username: user.username as string,
-    } as User
+
+    //store session
+    createSession({
+        _id: user._id,
+        email: user.email,
+        username: user.username
+    })
+
+    redirect('/dashboard')
 }

@@ -1,6 +1,3 @@
-import { redirect } from 'next/navigation'
-import { auth } from '../auth'
-
 interface Session {
     user: {
         email: string,
@@ -11,15 +8,11 @@ interface Session {
 }
 
 export default async function Dashboard () {
-    const session = await auth() as Session
-    if (!session || !session.user) {
-        redirect('/signIn')
-    }
-    const {user, expires} = session
+    
     return (
         <div>
             <h1>Dashboard</h1>
-            <p>Welcome to your MTG Dashboard {user.username}!</p>
+            <p>Welcome to your MTG Dashboard!</p>
         </div>
     )
 }

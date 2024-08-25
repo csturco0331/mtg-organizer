@@ -1,9 +1,9 @@
 import { NextResponse } from "next/server"
 import connect from '@/app/lib/dbConnection'
-import Card from '@/app/lib/modals/card'
+import {Card} from '@/app/lib/modals/card'
 import { Types } from "mongoose"
 import User from "@/app/lib/modals/user"
-import Deck from "@/app/lib/modals/deck"
+import {Deck} from "@/app/lib/modals/deck"
 
 export const GET = async (request: Request) => {
     try {
@@ -39,9 +39,8 @@ export const GET = async (request: Request) => {
 export const POST = async (req: Request) => {
     try {
         const body = await req.json()
-        const {scryfallId, quantity, user: userId, decks = []} = body
-        console.log(body)
-        if (!scryfallId ||!quantity ||!userId ||!Types.ObjectId.isValid(userId)) {
+        const {_id, quantity, user: userId, decks = []} = body
+        if (!_id ||!quantity ||!userId ||!Types.ObjectId.isValid(userId)) {
             console.log('Missing required field')
             return new NextResponse(JSON.stringify({error: 'Missing required fields'}), {status: 400})
         }
@@ -62,12 +61,7 @@ export const POST = async (req: Request) => {
             return new NextResponse(JSON.stringify({error: 'Deck not found'}), {status: 404})
             }
         }
-        const newCard = new Card({
-            scryfallId,
-            quantity,
-            user: new Types.ObjectId(userId),
-            decks: decks.map((deck : 'string') => new Types.ObjectId(deck))
-        })
+        const newCard = new Card(body)
         await newCard.save()
         return new NextResponse(JSON.stringify({message: 'Card is created', card: newCard}), {status: 201})
     } catch (error: any) {

@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server"
 import connect from '@/app/lib/dbConnection'
-import Card from '@/app/lib/modals/card'
+import {Card} from '@/app/lib/modals/card'
 import { Types } from "mongoose"
 import User from "@/app/lib/modals/user"
 
@@ -20,7 +20,7 @@ export const GET = async (request: Request, context: {params: any}) => {
         await connect()
 
         const card = await Card.findOne({
-            scryfallId: cardId,
+            _id: cardId,
             user: userId
         })
 
@@ -39,21 +39,21 @@ export const GET = async (request: Request, context: {params: any}) => {
 
 export const PATCH = async (request: Request, context: {params: any}) => {
     const cardId = context.params.card
-    if (!cardId || !Types.ObjectId.isValid(cardId)) {
+    if (!cardId) {
         console.log("Invalid card id")
         return new NextResponse(JSON.stringify({error: 'Invalid card id'}), {status: 400})
     }
     try {
         const {searchParams} = new URL(request.url)
         const userId = searchParams.get("userId")
-        const {scryfallId, quantity, decks} = await request.json()
+        const {_id, quantity, decks} = await request.json()
 
         if (!userId ||!Types.ObjectId.isValid(userId)) {
             console.log('Invalid user id')
             return new NextResponse(JSON.stringify({error: 'Invalid user id'}), {status: 400})
         }
 
-        if (!scryfallId) {
+        if (!_id) {
             console.log('Missing scryfall id')
             return new NextResponse(JSON.stringify({error: 'Missing scryfall Id'}), {status: 400})
         }
@@ -73,7 +73,7 @@ export const PATCH = async (request: Request, context: {params: any}) => {
 
         const card = await Card.findByIdAndUpdate(
             cardId,
-            {user: userId, scryfallId, quantity, decks: decks.map((deck: 'string') => new Types.ObjectId(deck))},
+            {user: userId, _id, quantity, decks: decks.map((deck: 'string') => new Types.ObjectId(deck))},
             {new: true}
         )
         return new NextResponse(JSON.stringify({card}), {status: 200})
@@ -87,7 +87,7 @@ export const PATCH = async (request: Request, context: {params: any}) => {
 
 export const DELETE = async (request: Request, context: {params: any}) => {
     const cardId = context.params.card
-    if (!cardId || !Types.ObjectId.isValid(cardId)) {
+    if (!cardId) {
         return new NextResponse(JSON.stringify({error: 'Invalid card'}), {status: 400})
     }
     try {

@@ -9,7 +9,7 @@ const CardImage = ({card, href}: {card: Scry.Card, href?: string}) => {
 
     const [flip, setFlip] = useState(false)
     const router = useRouter()
-
+    const color = card.color_identity
     function onClick () {
         if (!href) return
         router.push(href)
