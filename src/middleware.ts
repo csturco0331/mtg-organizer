@@ -1,19 +1,19 @@
 import { NextRequest, NextResponse } from "next/server"
-import { updateSession } from "./app/lib/session"
+import { getSession, updateSession } from "./app/lib/session"
 
 export async function middleware(req: NextRequest) {
     console.log('Middleware request:', req.nextUrl.pathname)
-    if (req.nextUrl.pathname.startsWith('/api')) {
-        return
-    }
-    if (req.nextUrl.pathname.startsWith('/sign')) {
-        return
-    }
-    console.log("Middleware ran")
-    let res = await updateSession(req)
-    if (!res) { //session not found
+    let session = req.cookies?.get('session')?.value ?? ''
+    if (req.nextUrl.pathname.startsWith('/sign')) return
+    let res = await updateSession(session)
+    if (!res) //session not found
         return NextResponse.redirect(new URL('/signIn', req.url))
-    }
+    // if (req.nextUrl.pathname.startsWith('/api')) {
+    //     return
+    // }
+    if (req.nextUrl.pathname === '/')
+        return NextResponse.redirect(new URL('/dashboard', req.url))
+
     return res
 }
 
@@ -25,6 +25,6 @@ export const config = {
        * - _next/image (image optimization files)
        * - favicon.ico, sitemap.xml, robots.txt (metadata files)
        */
-      '/((?!_next/static|_next/image|favicon.ico|sitemap.xml|robots.txt).*)',
+      '/((?!api|_next/static|_next/image|favicon.ico|sitemap.xml|robots.txt).*)',
     ],
 }  

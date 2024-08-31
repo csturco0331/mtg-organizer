@@ -1,9 +1,9 @@
 import { NextResponse } from "next/server"
 import connect from '@/app/lib/dbConnection'
 import { Types } from "mongoose"
-import User from "@/app/lib/modals/user"
-import Deck from "@/app/lib/modals/deck"
-import Card from "@/app/lib/modals/card"
+import { User } from "@/app/lib/modals/user"
+import { Deck } from "@/app/lib/modals/deck"
+import { Card } from "@/app/lib/modals/card"
 
 export const GET = async (request: Request) => {
     try {

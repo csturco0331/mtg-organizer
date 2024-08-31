@@ -5,10 +5,6 @@ import AppButton from "@/app/components/AppButton/AppButton";
 import Link from "next/link";
 import { useFormState } from "react-dom";
 
-//https://scryfall.com/docs/api/cards/search
-//https://scryfall.com/docs/syntax
-//https://github.com/ChiriVulpes/scryfall-sdk/blob/main/DOCUMENTATION.md#cardssearch-query-string-options-searchoptions--number-magicemittercard-
-
 export default function SignUp() {
     const [state, action, pending] = useFormState(signUp, undefined);
  

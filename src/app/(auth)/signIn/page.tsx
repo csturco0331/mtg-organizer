@@ -4,13 +4,24 @@ import AppButton from "@/app/components/AppButton/AppButton";
 import Link from "next/link";
 import { useFormState } from "react-dom";
 import { login } from "@/app/actions/auth";
-
-//https://scryfall.com/docs/api/cards/search
-//https://scryfall.com/docs/syntax
-//https://github.com/ChiriVulpes/scryfall-sdk/blob/main/DOCUMENTATION.md#cardssearch-query-string-options-searchoptions--number-magicemittercard-
+import { FormState } from "@/app/lib/definitions";
+import { UserContext } from "@/app/components/Providers/UserProvider/UserProvider";
+import { useContext } from "react";
+import { useRouter } from "next/navigation";
 
 export default function Home() {
-  const [state, action, pending] = useFormState(login, undefined);
+  const router = useRouter();
+  const [state, action, pending] = useFormState(userLogin, undefined);
+  const {setUser} = useContext(UserContext)
+
+  async function userLogin(state: FormState, formData: FormData) {
+    let result = await login(state, formData)
+    if (result.user) {
+      setUser(result.user)
+      router.push('/dashboard')
+    }
+    return  result
+  }
 
   return (
     <form action={action}>
@@ -22,7 +33,7 @@ export default function Home() {
         <div>
           <p className={styles.err}>Password must:</p>
           <ul>
-            {state.errors.password.map((error) => (
+            {state.errors.password.map((error: string) => (
               <li key={error} className={styles.err}>{error}</li>
             ))}
           </ul>

@@ -2,7 +2,7 @@
 import { redirect } from "next/navigation"
 import { FormState, signInSchema, SignupFormSchema } from "../lib/definitions"
 import { fetchUserFromDatabase, createUserInDatabase } from "./mongo"
-import { createSession } from "../lib/session"
+import { createSession, deleteSession } from "../lib/session"
 
 export const signUp = async (state: FormState, formData: FormData) => {
     try {
@@ -42,7 +42,7 @@ export const signUp = async (state: FormState, formData: FormData) => {
             }
         }
     }
-    redirect('/signIn')
+    login(state, formData)
 }
 
 export const login = async (state: FormState, formData: FormData) => {
@@ -64,8 +64,8 @@ export const login = async (state: FormState, formData: FormData) => {
     const { email, password } = validatedFields.data
 
     // logic to verify if the user exists
-    let res = await fetchUserFromDatabase(email, password)
-    user = await res.json()
+    let result = await fetchUserFromDatabase(email, password)
+    user = result.user
     if (!user || !user._id) {
         console.log('User not found')
         // No user found, so this is their first attempt to login
@@ -74,13 +74,19 @@ export const login = async (state: FormState, formData: FormData) => {
             message: 'Bad Credentials'
         }
     }
-
     //store session
     createSession({
         _id: user._id,
         email: user.email,
         username: user.username
     })
+    return {
+        user: user
+    }
+}
 
-    redirect('/dashboard')
+export const logout = async () => {
+    console.log('Logout')
+    deleteSession()
+    redirect('/signIn')
 }

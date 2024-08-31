@@ -5,7 +5,6 @@ import CardImage from "@/app/components/CardImage/CardImage"
 import { useEffect, useState } from "react"
 import * as Scry from 'scryfall-sdk'
 import InventoryUpdater from "@/app/components/InventoryUpdater/InventoryUpdater"
-import SearchHeader from "@/app/components/SearchHeader/SearchHeader"
 
 export default function Card({params}: {params: {id: string}}) {
 
@@ -35,7 +34,6 @@ export default function Card({params}: {params: {id: string}}) {
 
     return (
         <>
-            <SearchHeader title="Card Details" />
             {(card) 
                 ?
             <div className={styles.main}>

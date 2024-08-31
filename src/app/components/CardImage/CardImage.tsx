@@ -21,7 +21,7 @@ const CardImage = ({card, href}: {card: Scry.Card, href?: string}) => {
     }
 
     return (
-        <div key={card.id} onClick={onClick}>
+        <div key={card.id} onClick={onClick} className={styles.main}>
             {
                 (card.image_uris)
                     ? <img className={styles.img} src={card.image_uris.normal}></img>

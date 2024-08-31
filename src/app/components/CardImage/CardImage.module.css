@@ -1,3 +1,7 @@
+.main:hover {
+    transform: scale(1.2);
+}
+
 .imgContainer {
     perspective: 1000px;
 }
@@ -28,6 +32,7 @@
     grid-row-start: 1;
     width: 300px;
     backface-visibility: hidden;
+    transition-duration: 500ms;
 }
 
 .back {

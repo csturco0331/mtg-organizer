@@ -1,15 +1,22 @@
 import { NextResponse } from "next/server"
 import connect from '@/app/lib/dbConnection'
-import User from '@/app/lib/modals/user'
+import { CardLink, User } from '@/app/lib/modals/user'
 import { Types } from "mongoose"
 import bcrypt from "bcrypt"
+import { getSessionUser } from "@/app/lib/session"
 //todo: remove
 export const GET = async () => {
     try {
- 
+        let user = await getSessionUser()
+        if (!user) return new NextResponse(JSON.stringify({error: 'Not Signed In'}), {status: 401})
         await connect()
-        const users = await User.find()
-        return new NextResponse(JSON.stringify(users), {status: 200})
+        const users = await User.findOne({_id: user._id})
+        const returnObj = {
+            '_id': users._id,
+            'username': users.username,
+            'cards': users.cards
+        }
+        return new NextResponse(JSON.stringify(returnObj), {status: 200})
     } catch (error) {
         console.error(error)
         return new NextResponse("Failed to connect to the database.", {
@@ -38,8 +45,8 @@ export const POST = async (req: Request) => {
             return new NextResponse(JSON.stringify({error: 'Invalid password'}), {status: 400})
         }
 
-        const {username, _id} = user
-        return new NextResponse(JSON.stringify({username, email, _id}), {status: 200})
+        const {username, _id, cards} = user
+        return new NextResponse(JSON.stringify({message: 'Logged In', user: {username, _id, cards}}), {status: 200})
     } catch (error) {
         console.error(error)
         return new NextResponse("Failed to connect to the database.", {
@@ -58,7 +65,7 @@ export const PUT = async (req: Request) => {
         const newUser = new User({username, email, password: pwHash})
         await newUser.save()
         const {_id} = newUser
-        return new NextResponse(JSON.stringify({message: 'User is created', user: {_id, username, email}}), {status: 201})
+        return new NextResponse(JSON.stringify({message: 'User is created', user: {_id, username}}), {status: 201})
     } catch (error: any) {
         return new NextResponse(JSON.stringify({error: error.message}), {status: 500})
     }
@@ -66,21 +73,36 @@ export const PUT = async (req: Request) => {
 
 export const PATCH = async (req: Request) => {
     try {
-        const {_id, username} = await req.json()
+        let user = await getSessionUser()
+        if (!user) return new NextResponse(JSON.stringify({error: 'Not Signed In'}), {status: 401})
+        let _id = user._id
+        if (!_id || !Types.ObjectId.isValid(_id)) {
+            return new NextResponse(JSON.stringify({error: 'Not Signed In'}), {status: 401})
+        }
+        const card = await req.json()
         await connect()
-        if (!_id || !username) {
-            return new NextResponse(JSON.stringify({error: 'Missing _id or username'}), {status: 400})
-        }
-        if (!Types.ObjectId.isValid(_id)) {
-            return new NextResponse(JSON.stringify({error: 'Invalid _id'}), {status: 400})
-        }
-        const updatedUser = await User.findByIdAndUpdate(_id, {username}, {new: true})
+        let updatedUser
+        if (card)
+            updatedUser = await User.findById(_id)
         if (!updatedUser) {
             return new NextResponse(JSON.stringify({message: 'User not found'}), {status: 400})
         }
-        const {email} = updatedUser
+        let index = updatedUser.cards.findIndex((c: CardLink) => c.cardId === card.cardId)
+        if (index !== -1 && card.quantity > 0) { //card found on user already and we have a positive quantity
+            updatedUser.cards[index] = card
+        } else if (index !== -1) { //card found but quantity is zero so need to delete
+            updatedUser.cards.splice(index, 1)
+        } else if (card.quantity) { //add new cardLink
+            updatedUser.cards.push(card)
+        } //card not found and quantity is zero so do nothing
+        await updatedUser.save()
+        const returnObj = {
+            '_id': updatedUser._id,
+            'username': updatedUser.username,
+            'cards': updatedUser.cards
+        }
 
-        return new NextResponse(JSON.stringify({message: 'User is updated', user: {_id, username, email}}), {status: 200})
+        return new NextResponse(JSON.stringify({message: 'User is updated', user: returnObj}), {status: 200})
     } catch (error: any) {
         return new NextResponse(JSON.stringify({error: error.message}), {status: 500})
     }

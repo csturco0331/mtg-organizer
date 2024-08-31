@@ -1,18 +1,15 @@
-interface Session {
-    user: {
-        email: string,
-        username: string,
-        _id: string
-    },
-    expires: string
-}
+'use client'
+import { useContext, useEffect } from "react"
+import { UserContext } from "../components/Providers/UserProvider/UserProvider"
 
-export default async function Dashboard () {
+export default function Dashboard () {
     
+    const {user} = useContext(UserContext)
+
     return (
         <div>
             <h1>Dashboard</h1>
-            <p>Welcome to your MTG Dashboard!</p>
+            <p>Welcome to your MTG Dashboard {user?.username}!</p>
         </div>
     )
 }

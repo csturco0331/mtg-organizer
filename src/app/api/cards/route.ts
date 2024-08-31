@@ -2,7 +2,7 @@ import { NextResponse } from "next/server"
 import connect from '@/app/lib/dbConnection'
 import {Card} from '@/app/lib/modals/card'
 import { Types } from "mongoose"
-import User from "@/app/lib/modals/user"
+import { CardLink, User } from "@/app/lib/modals/user"
 import {Deck} from "@/app/lib/modals/deck"
 
 export const GET = async (request: Request) => {
@@ -39,8 +39,8 @@ export const GET = async (request: Request) => {
 export const POST = async (req: Request) => {
     try {
         const body = await req.json()
-        const {_id, quantity, user: userId, decks = []} = body
-        if (!_id ||!quantity ||!userId ||!Types.ObjectId.isValid(userId)) {
+        const {card, quantity, userId} = body
+        if (!card._id ||!quantity ||!userId ||!Types.ObjectId.isValid(userId)) {
             console.log('Missing required field')
             return new NextResponse(JSON.stringify({error: 'Missing required fields'}), {status: 400})
         }
@@ -50,18 +50,18 @@ export const POST = async (req: Request) => {
             console.log('User not found')
             return new NextResponse(JSON.stringify({error: 'User not found'}), {status: 404})
         }
-        for (const deckId of decks) {
-            if (!Types.ObjectId.isValid(deckId)) {
-            console.log('Invalid deck id')
-            return new NextResponse(JSON.stringify({error: 'Invalid deck id'}), {status: 400})
-            }
-            const deck = await Deck.findById(deckId)
-            if (!deck) {
-            console.log('Deck not found')
-            return new NextResponse(JSON.stringify({error: 'Deck not found'}), {status: 404})
+        if (!user.cards) {
+            user.cards = [{cardId: card._id, quantity, used: 0}]
+        } else {
+            let cardLinkIndex = user.cards.findIndex((c: CardLink) => c.cardId === card._id)
+            if (cardLinkIndex === -1) {
+                user.cards.push({cardId: card._id, quantity, used: 0})
+            } else {
+                user.cards[cardLinkIndex].quantity = quantity
             }
         }
-        const newCard = new Card(body)
+        await User.findByIdAndUpdate(user._id, user)
+        const newCard = new Card(body.card)
         await newCard.save()
         return new NextResponse(JSON.stringify({message: 'Card is created', card: newCard}), {status: 201})
     } catch (error: any) {

@@ -1,0 +1,31 @@
+.search {
+    width: 30px;
+    height: 30px;
+    border-radius: 20px;
+    padding: 10px;
+    transition-duration: 500ms;
+    cursor: pointer;
+    background-repeat: no-repeat;
+    font-size: 15px;
+    color: transparent;
+    border: 1px solid white;
+    overflow: hidden;
+    background: url('/search.svg') no-repeat transparent;
+    background-size: 22px;
+    background-position: 45% 50%;
+}
+
+.search:hover {
+    cursor: pointer;
+    border: 1px solid #cc5c0d
+}
+
+.search:focus {
+    width: 200px;
+    padding-left: 40px;
+    color: white;
+    outline: none;
+    border: 1px solid #cc5c0d;
+    background-color: transparent;
+    background-position: 10px 50%;
+}

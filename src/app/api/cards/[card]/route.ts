@@ -2,7 +2,7 @@ import { NextResponse } from "next/server"
 import connect from '@/app/lib/dbConnection'
 import {Card} from '@/app/lib/modals/card'
 import { Types } from "mongoose"
-import User from "@/app/lib/modals/user"
+import { User } from "@/app/lib/modals/user"
 
 export const GET = async (request: Request, context: {params: any}) => {
     const cardId = context.params.card
@@ -18,7 +18,7 @@ export const GET = async (request: Request, context: {params: any}) => {
         }
 
         await connect()
-
+        
         const card = await Card.findOne({
             _id: cardId,
             user: userId

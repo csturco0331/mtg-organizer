@@ -11,7 +11,6 @@ const CardSchema = new Schema(
         color_identity: { type: Array<"W" | "B" | "R" | "U" | "G">, required: true },
         keywords: { type: ['string'], required: true },
         tcgplayer: { type: 'string' },
-        userCounts: { type: Array<UserLink>, required: true }
     },
     {
         timestamps: true
@@ -28,18 +27,13 @@ export type UserCard = {
     oracle_text: string[],
     color_identity: Array<'W' | 'B' | 'R' | 'U' | 'G'>,
     keywords: string[],
-    tcgplayer?: string | undefined | null
-    userCounts: UserLink
-}
-
-export type UserLink = {
-    userId: string;
-    quantity: Number;
-    used: Number;
+    tcgplayer?: string | undefined | null,
+    userId?: string,
+    quantity?: Number
 }
 
 // Function to translate a Scryfall card into a UserCard object
-export function translateCard(card: Scry.Card, quantity = 0, userId: string): UserCard {
+export function translateFromScryCard(card: Scry.Card): UserCard {
     let image, type_line, oracle_text
     if (card.card_faces[0]?.name) { //dual faced card
         let front = card.card_faces[0], back = card.card_faces[1]
@@ -60,10 +54,25 @@ export function translateCard(card: Scry.Card, quantity = 0, userId: string): Us
         color_identity: card.color_identity,
         keywords: card.keywords,
         tcgplayer: card.purchase_uris?.tcgplayer,
-        userCounts: {
-            userId: userId, //to be set by api
-            quantity: quantity,
-            used: 0
+    }
+}
+
+export async function translateFromDBCard({data, userId, quantity}: {data: Response, userId: string, quantity: Number}): Promise<UserCard | null> {
+    try {
+        let content = (await data.json()).card
+        return {
+            _id: content._id,
+            name: content.name,
+            image: content.image,
+            type_line: content.type_line,
+            oracle_text: content.oracle_text,
+            color_identity: content.color_identity,
+            keywords: content.keywords,
+            tcgplayer: content.tcgplayer,
+            userId,
+            quantity
         }
+    } catch (err) {
+        return null
     }
 }

@@ -1,10 +1,13 @@
-import { translateCard, UserCard } from "../lib/modals/card"
+'use server'
+import { translateFromDBCard, translateFromScryCard, UserCard } from "../lib/modals/card"
 import {Card as ScryCard} from 'scryfall-sdk'
+import { getSession, getSessionUser } from "../lib/session"
+import { CardLink } from "../lib/modals/user"
 
 export async function fetchCardFromDatabase(cardId: string) {
-    let session = {user: {_id: ''}} //TODO: Update with proper session id
-    if (!session || !session.user) return
-    let data = await fetch(`${process.env.URL}/api/cards/${cardId}?userId=${session.user._id}`, {
+    const user = await getSessionUser()
+    if (!user) return
+    let data = await fetch(`${process.env.URL}/api/cards/${cardId}?userId=${user._id}`, {
         method: 'GET',
         headers: {
             'Content-Type': 'application/json',
@@ -15,26 +18,25 @@ export async function fetchCardFromDatabase(cardId: string) {
 }
 
 export async function createCardInDatabase(scryCard: ScryCard, quantity: number) {
-    let session = {user: {_id: ''}} //TODO: Update with proper session id
-    if (!session || !session.user) return
-    let card = translateCard(scryCard, quantity, session.user._id)
+    const user = await getSessionUser()
+    if (!user) return
+    let card = translateFromScryCard(scryCard)
     console.log('Card Translated')
     let data = await fetch(`${process.env.URL}/api/cards`, {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
         },
-        body: JSON.stringify({...card, user: session.user._id}),
+        body: JSON.stringify({card, userId: user._id, quantity}),
     })
-    let content = await data.json()
-    console.log(content.error || 'Card Created')
-    return content
+    let dbcard = await translateFromDBCard({data, userId: user._id, quantity})
+    return dbcard
 }
 
 export async function updateCardInDatabase(card: UserCard) {
-    let session = {user: {_id: ''}} //TODO: Update with proper session id
-    if (!session || !session.user) return
-    let data = await fetch(`${process.env.URL}/api/cards/${card._id}?userId=${session.user._id}`, {
+    const user = await getSessionUser()
+    if (!user) return
+    let data = await fetch(`${process.env.URL}/api/cards/${card._id}?userId=${user._id}`, {
         method: 'PATCH',
         headers: {
             'Content-Type': 'application/json',
@@ -47,9 +49,9 @@ export async function updateCardInDatabase(card: UserCard) {
 }
 
 export async function deleteCardFromDatabase(_id: string) {
-    let session = {user: {_id: ''}} //TODO: Update with proper session id
-    if (!session || !session.user) return
-    let data = await fetch(`${process.env.URL}/api/cards/${_id}?userId=${session.user._id}`, {
+    const user = await getSessionUser()
+    if (!user) return
+    let data = await fetch(`${process.env.URL}/api/cards/${_id}?userId=${user._id}`, {
         method: 'DELETE',
         headers: {
             'Content-Type': 'application/json',
@@ -62,13 +64,16 @@ export async function deleteCardFromDatabase(_id: string) {
 
 export async function fetchUserFromDatabase(email: string, password: string) {
     console.log(`Fetching user: ${email}`)
-    return await fetch(`${process.env.URL}/api/users`, {
+    let data = await fetch(`${process.env.URL}/api/users`, {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
+            'Cookie': `session=${getSession()}`
         },
         body: JSON.stringify({email, password}),
     })
+    let body = await data.json()
+    return JSON.parse(JSON.stringify(body))
 }
 
 export async function createUserInDatabase({email, username, password}: {email: string, username: string, password: string}) {
@@ -79,4 +84,29 @@ export async function createUserInDatabase({email, username, password}: {email: 
         },
         body: JSON.stringify({email, username, password}),
     })
+}
+
+export async function fetchUserContextFromDatabase() {
+    let data = await fetch(`${process.env.URL}/api/users`, {
+        method: 'GET',
+        headers: {
+            'Content-Type': 'application/json',
+            'Cookie': `session=${getSession()}`
+        }
+    })
+    let body = await data.json()
+    return JSON.parse(JSON.stringify(body))
+}
+
+export async function updateCollection(card: CardLink) {
+    let data = await fetch(`${process.env.URL}/api/users`, {
+        method: 'PATCH',
+        headers: {
+            'Content-Type': 'application/json',
+            'Cookie': `session=${getSession()}`
+        },
+        body: JSON.stringify(card)
+    })
+    let body = await data.json()
+    return JSON.parse(JSON.stringify(body))
 }

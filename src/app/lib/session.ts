@@ -1,19 +1,21 @@
 import {SignJWT, jwtVerify} from 'jose'
 import { cookies } from 'next/headers'
-import { redirect } from 'next/navigation'
 import { NextRequest, NextResponse } from 'next/server'
+import { User } from './modals/user'
  
 const secretKey = process.env.SESSION_SECRET
 const encodedKey = new TextEncoder().encode(secretKey)
 const SESSIONTIMEOUT = 6 * 60 * 60 * 1000 //6 hours
- 
-type User = {
-    _id: string,
-    username: string,
-    email: string,
+
+type Payload = {
+  user: User,
+  expiresAt: Date,
+  iat: Number,
+  exp: Number,
+  expires: Date
 }
 
-async function encrypt(payload: any) {
+async function encrypt(payload: { user: User, expiresAt: Date}) {
   return new SignJWT(payload)
     .setProtectedHeader({ alg: 'HS256' })
     .setIssuedAt()
@@ -23,10 +25,10 @@ async function encrypt(payload: any) {
  
 async function decrypt(session: string | undefined = '') {
   try {
-    const { payload } = await jwtVerify(session, encodedKey, {
+    const { payload } = await jwtVerify<Payload>(session, encodedKey, {
       algorithms: ['HS256'],
     })
-    return payload
+    return payload as Payload
   } catch (error) {
     console.log('Failed to verify session')
   }
@@ -39,34 +41,36 @@ export async function createSession(user: User) {
   setCookie(session, expiresAt)
 }
 
-export async function getSession() {
+export async function getSessionUser() {
   const session = cookies().get('session')?.value
   const payload = await decrypt(session)
-  if (!session || !payload) {
-    redirect('/signIn')
-  }
-  return payload
+  return payload?.user
 }
 
-export async function updateSession(req: NextRequest) {
-  const session = cookies().get('session')?.value
+export function getSession() {
+  return cookies().get('session')?.value
+}
+
+export async function updateSession(session: string) {
   if (!session) return
   const payload = await decrypt(session)
   if (!payload) return
-  payload.expires = new Date(Date.now() + SESSIONTIMEOUT)
+  let expiration = new Date(Date.now() + SESSIONTIMEOUT)
+  payload.expires = expiration
   const res = NextResponse.next()
   res.cookies.set({
     name: 'session',
     value: await encrypt(payload),
+    expires: expiration,
     httpOnly: true,
-    expires: payload.expires
+    sameSite: 'lax',
+    path: '/',
   })
   return res
 }
 
 export async function deleteSession() {
   cookies().delete('session')
-  redirect('/')
 }
 
 const setCookie = (session: string, date: Date) => {
