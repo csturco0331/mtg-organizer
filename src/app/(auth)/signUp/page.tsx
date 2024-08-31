@@ -2,12 +2,27 @@
 import styles from '../auth.module.css'
 import { signUp } from "@/app/actions/auth";
 import AppButton from "@/app/components/AppButton/AppButton";
+import { UserContext } from '@/app/components/Providers/UserProvider/UserProvider';
+import { FormState } from '@/app/lib/definitions';
 import Link from "next/link";
+import { useRouter } from 'next/navigation';
+import { useContext } from 'react';
 import { useFormState } from "react-dom";
 
 export default function SignUp() {
-    const [state, action, pending] = useFormState(signUp, undefined);
+  const router = useRouter();
+  const [state, action, pending] = useFormState(userSignUp, undefined);
+  const {setUser} = useContext(UserContext)
  
+  async function userSignUp(state: FormState, formData: FormData) {
+    let result = await signUp(state, formData)
+    if (result.user) {
+      setUser(result.user)
+      router.push('/dashboard')
+    }
+    return  result
+  }
+
   return (
     <form action={action}>
       <input id="username" name="username" placeholder="Username" />
@@ -32,3 +47,7 @@ export default function SignUp() {
     </form>
   )
 }
+function setUser(user: any) {
+  throw new Error('Function not implemented.');
+}
+

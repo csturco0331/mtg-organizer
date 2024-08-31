@@ -22,8 +22,7 @@ export const signUp = async (state: FormState, formData: FormData) => {
 
         const { username, email, password } = validatedFields.data
         //see if user email already exists
-        let res = await fetchUserFromDatabase(email, password)
-        let user = await res.json()
+        let user = await fetchUserFromDatabase(email, password)
         if (user.error !== "Failed to get user") {
             console.log('User already exists')
             return {
@@ -33,8 +32,7 @@ export const signUp = async (state: FormState, formData: FormData) => {
             }
         }
         //create user in database
-        res = await createUserInDatabase({ email, password: password, username })
-        user = await res.json()
+        await createUserInDatabase({ email, password: password, username })
     } catch (err) {
         return {
             errors: {
@@ -42,7 +40,7 @@ export const signUp = async (state: FormState, formData: FormData) => {
             }
         }
     }
-    login(state, formData)
+    return await login(state, formData)
 }
 
 export const login = async (state: FormState, formData: FormData) => {
