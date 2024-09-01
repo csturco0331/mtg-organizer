@@ -16,11 +16,13 @@ export default function SignUp() {
  
   async function userSignUp(state: FormState, formData: FormData) {
     let result = await signUp(state, formData)
+    if (result.errors) {
+      return result
+    }
     if (result.user) {
       setUser(result.user)
       router.push('/dashboard')
     }
-    return  result
   }
 
   return (

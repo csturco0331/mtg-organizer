@@ -32,7 +32,16 @@ export const signUp = async (state: FormState, formData: FormData) => {
             }
         }
         //create user in database
-        await createUserInDatabase({ email, password: password, username })
+        user = await createUserInDatabase({ email, password: password, username })
+        //store session
+        createSession({
+            _id: user._id,
+            email: user.email,
+            username: user.username
+        })
+        return {
+            user: user
+        }
     } catch (err) {
         return {
             errors: {
@@ -40,7 +49,6 @@ export const signUp = async (state: FormState, formData: FormData) => {
             }
         }
     }
-    return await login(state, formData)
 }
 
 export const login = async (state: FormState, formData: FormData) => {
@@ -55,7 +63,7 @@ export const login = async (state: FormState, formData: FormData) => {
     if (!validatedFields.success) {
         console.log('Invalid data')
         return {
-            errors: validatedFields.error.flatten().fieldErrors,
+            errors: validatedFields.error.flatten().fieldErrors
         }
     }
     
