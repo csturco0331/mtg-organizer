@@ -77,13 +77,15 @@ export async function fetchUserFromDatabase(email: string, password: string) {
 }
 
 export async function createUserInDatabase({email, username, password}: {email: string, username: string, password: string}) {
-    return await fetch(`${process.env.URL}/api/users`, {
+    let data = await fetch(`${process.env.URL}/api/users`, {
         method: 'PUT',
         headers: {
             'Content-Type': 'application/json',
         },
         body: JSON.stringify({email, username, password}),
     })
+    let body = await data.json()
+    return JSON.parse(JSON.stringify(body))
 }
 
 export async function fetchUserContextFromDatabase() {

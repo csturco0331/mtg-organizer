@@ -32,15 +32,17 @@ export const signUp = async (state: FormState, formData: FormData) => {
             }
         }
         //create user in database
-        user = await createUserInDatabase({ email, password: password, username })
-        //store session
-        createSession({
-            _id: user._id,
-            email: user.email,
-            username: user.username
-        })
-        return {
-            user: user
+        let resp = await createUserInDatabase({ email, password: password, username })
+        if (resp.user) {
+            //store session
+            createSession({
+                _id: resp.user._id,
+                email: resp.user.email,
+                username: resp.user.username
+            })
+            return {
+                user: resp.user
+            }
         }
     } catch (err) {
         return {
